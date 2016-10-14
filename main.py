@@ -9,6 +9,7 @@ def isgoal(dirs,name):
     global order
     compName=os.path.join(dirs,name)
     if (len(re.findall(r'\b.*.cpp\b',compName))>0) \
+       or (len(re.findall(r'\b.*.py\b',compName))>0)\
        or (len(re.findall(r'\b.*.txt\b',compName))>0)\
        and os.path.getsize(compName)<10240:
            #if(os.path.getsize(compName)<512):
@@ -44,18 +45,28 @@ def work():
                 #copyFile(os.path.join(dirs,name),os.path.join(newPath,name))
     zf.close()
 
-command=input('enter "Y" to start\n')
-inputOrder=input('enter "D" to see details while running\n')
-order=inputOrder[0]=='D' or inputOrder[0]=='d'
-if(command[0]=='Y' or command[0]=='y'): 
+command=input('enter "Y" to start\n') or 'N'
+if command[0].lower()=='y':
+    inputOrder=input('enter "D" to see details while running\n') or 'N'
+    order=inputOrder[0].lower()=='d'
+    
     path=r'F:\charlotte_code'
     targetPath=r'F:\backups'
+    copylist=[r'C:\Users\scPointer\SkyDrive']
     user=r'scpointer'
-    zipname=targetPath+user+time.strftime('%Y%m%d')+'.zip'
+    zipname=os.path.join(targetPath,user)+time.strftime('%Y%m%d')+'.zip'
     work()
+
+    for copyPath in copylist:
+        shutil.copy(zipname,copyPath)
     print('finished')
 """
-version 0.1
-created on 20161011 by scpointer
-original version
+version 0.1.2
+updated on 20161013 by scpointer
+move "inputOrder..." into "if" to end the program instand of ask for options
+if user not choose to start
+in "command=...,inputOrder=...", "or 'N'"added to prevent void input
+".py" files are backed up now
+"copylist" added
+lower() used to prevent foolish lengthy compare in "if"
 """
