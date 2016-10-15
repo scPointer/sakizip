@@ -3,7 +3,7 @@ import re
 import time
 import shutil
 import zipfile
-
+import sys
 
 def isgoal(dirs,name):
     global order
@@ -17,6 +17,7 @@ def isgoal(dirs,name):
                    print(name,os.path.getsize(compName),'B','added')
                return True
     return False
+
 def mkdir(dirs):
     if not os.path.exists(dirs):
         os.makedirs(dirs)
@@ -29,44 +30,64 @@ def copyFile(source,target):
         open(target, "wb").write(open(source, "rb").read())
 
 def work():
-    global path,targetPath
-    pathLen=len(path)
+    global sourcePath,targetPath
+    pathLen=len(sourcePath)
     zf=zipfile.ZipFile(zipname,'w',zipfile.zlib.DEFLATED)
-    for dirs,folders,nameList in os.walk(path):
-        #newPath=targetPath+dirs[pathLen:]
-        #mkdir(newPath)
+    for dirs,folders,nameList in os.walk(sourcePath):
         zf.write(dirs,dirs[pathLen:])
-        #print(newPath)
         for name in nameList:
             if isgoal(dirs,name):
                 newName=os.path.join(dirs,name)
                 zf.write(newName,newName[pathLen:])
-                #shutil.copy(os.path.join(dirs,name),newPath)
-                #copyFile(os.path.join(dirs,name),os.path.join(newPath,name))
     zf.close()
 
+def readInit():
+    
+    fld={}
+    initFile=open('init.ini','r')
+    setting=initFile.read()
+    exec(setting,fld)
+    initFile.close()
+
+    global para
+    return tuple([fld[x] for x in para])
+
+def checkPath(path):
+    if not os.path.exists(path):
+        print('path',path,'is not exists')
+        return True
+    else:
+        return False
+    
+def checkInput(pac):
+    sourcePath,targetPath,copylist,user=pac
+    errors=0
+    errors+=checkPath(sourcePath)
+    errors+=checkPath(targetPath)
+    for cppath in copylist:
+        errors+=checkPath(cppath)
+    if errors>0:
+        print('please check if the format of data in init.ini is correct')
+    return errors==0
+    
+para=['sourcePath','targetPath','copylist','user']
 command=input('enter "Y" to start\n') or 'N'
 if command[0].lower()=='y':
+    sourcePath,targetPath,copylist,user=pac=readInit()
+    if not checkInput(pac):
+        sys.exit()
+    
     inputOrder=input('enter "D" to see details while running\n') or 'N'
     order=inputOrder[0].lower()=='d'
+    zipname=os.path.join(targetPath,user)+'_'+time.strftime('%Y%m%d')+'.zip'
     
-    path=r'F:\charlotte_code'
-    targetPath=r'F:\backups'
-    copylist=[r'C:\Users\scPointer\SkyDrive']
-    user=r'scpointer'
-    zipname=os.path.join(targetPath,user)+time.strftime('%Y%m%d')+'.zip'
     work()
 
     for copyPath in copylist:
         shutil.copy(zipname,copyPath)
     print('finished')
 """
-version 0.1.2
-updated on 20161013 by scpointer
-move "inputOrder..." into "if" to end the program instand of ask for options
-if user not choose to start
-in "command=...,inputOrder=...", "or 'N'"added to prevent void input
-".py" files are backed up now
-"copylist" added
-lower() used to prevent foolish lengthy compare in "if"
+version 0.2
+updated on 20161015 by scpointer
+now where to zip and where to save the .zip file etc. are customizable
 """
