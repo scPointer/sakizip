@@ -6,11 +6,11 @@ import zipfile
 import sys
 
 def isgoal(dirs,name):
-    global order
+#    global order
     compName=os.path.join(dirs,name)
-    if (len(re.findall(r'\b.*.cpp\b',compName))>0) \
-       or (len(re.findall(r'\b.*.py\b',compName))>0)\
-       or (len(re.findall(r'\b.*.txt\b',compName))>0)\
+    if (len(re.findall(r'\b.*\.cpp$',compName))>0) \
+       or (len(re.findall(r'\b.*\.py$',compName))>0)\
+       or (len(re.findall(r'\b.*\.txt$',compName))>0)\
        and os.path.getsize(compName)<10240:
            #if(os.path.getsize(compName)<512):
                if order:
@@ -30,7 +30,7 @@ def copyFile(source,target):
         open(target, "wb").write(open(source, "rb").read())
 
 def work():
-    global sourcePath,targetPath
+#    global sourcePath,targetPath
     pathLen=len(sourcePath)
     zf=zipfile.ZipFile(zipname,'w',zipfile.zlib.DEFLATED)
     for dirs,folders,nameList in os.walk(sourcePath):
@@ -49,7 +49,7 @@ def readInit():
     exec(setting,fld)
     initFile.close()
 
-    global para
+#    global para
     return tuple([fld[x] for x in para])
 
 def checkPath(path):
@@ -73,6 +73,7 @@ def checkInput(pac):
 para=['sourcePath','targetPath','copylist','user']
 command=input('enter "Y" to start\n') or 'N'
 if command[0].lower()=='y':
+    
     sourcePath,targetPath,copylist,user=pac=readInit()
     if not checkInput(pac):
         sys.exit()
